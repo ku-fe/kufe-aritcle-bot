@@ -1,0 +1,28 @@
+{
+  "name": "kufe-article-bot",
+  "version": "1.0.0",
+  "description": "Discord bot for submitting technical articles to KUFE channel",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.7",
+    "open-graph-scraper": "^6.9.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.8",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  }
+}
