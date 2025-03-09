@@ -1,7 +1,6 @@
-import { ChatInputCommandInteraction, Message, EmbedBuilder } from 'discord.js';
-import { botConfig } from '../config/config';
+import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
-export async function handleHelpCommand(interaction: ChatInputCommandInteraction | Message) {
+export async function handleHelpCommand(interaction: ChatInputCommandInteraction): Promise<void> {
   const embed = new EmbedBuilder()
     .setTitle('KUFE Article Bot Help')
     .setColor('#0099ff')
@@ -19,9 +18,5 @@ export async function handleHelpCommand(interaction: ChatInputCommandInteraction
     .setFooter({ text: 'KUFE Article Bot' })
     .setTimestamp();
 
-  if (interaction instanceof ChatInputCommandInteraction) {
-    await interaction.reply({ embeds: [embed] });
-  } else {
-    await interaction.reply({ embeds: [embed] });
-  }
+  await interaction.reply({ embeds: [embed] });
 } 
