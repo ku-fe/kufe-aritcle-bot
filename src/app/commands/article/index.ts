@@ -2,6 +2,7 @@ import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { ValidationError } from '../../../types/errors';
 import { articleService } from '../../../services/article/service';
 import { metadataService } from '../../../services/metadata/service';
+import { ARTICLE_CATEGORIES, CategoryValue } from '../../../services/category/types';
 
 export async function handleArticleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
   await interaction.deferReply();
@@ -16,9 +17,34 @@ export async function handleArticleCommand(interaction: ChatInputCommandInteract
       throw new ValidationError('Please provide a valid URL.');
     }
 
+    // Get categories (remove duplicates and nulls)
+    const rawCategories = [
+      interaction.options.getString('category1', true),
+      interaction.options.getString('category2', false),
+      interaction.options.getString('category3', false),
+    ].filter((category, index, self) => 
+      category !== null && self.indexOf(category) === index
+    );
+
+    // Validate categories
+    const categories = rawCategories.map(cat => {
+      if (!Object.values(ARTICLE_CATEGORIES).some(c => c.value === cat)) {
+        throw new ValidationError(`Invalid category: ${cat}`);
+      }
+      return cat;
+    }) as CategoryValue[];
+
+    if (categories.length === 0) {
+      throw new ValidationError('At least one category is required.');
+    }
+
     // Check if article already exists
     const existingArticle = await articleService.getArticleByUrl(url);
     if (existingArticle) {
+      const categoryLabels = existingArticle.categories
+        .map(cat => ARTICLE_CATEGORIES[cat.toUpperCase() as keyof typeof ARTICLE_CATEGORIES]?.label || cat)
+        .join(', ');
+
       await interaction.editReply({
         content: 'This article has already been submitted.',
         embeds: [
@@ -27,6 +53,7 @@ export async function handleArticleCommand(interaction: ChatInputCommandInteract
             .setDescription(existingArticle.description || 'No description available')
             .setURL(existingArticle.url)
             .setImage(existingArticle.image_url || null)
+            .addFields({ name: 'Categories', value: categoryLabels })
             .setFooter({
               text: `Previously submitted by ${interaction.user.tag}`,
             })
@@ -48,7 +75,13 @@ export async function handleArticleCommand(interaction: ChatInputCommandInteract
       submitted_by: interaction.user.id,
       submitted_at: new Date().toISOString(),
       channel_id: interaction.channelId,
+      categories,
     });
+
+    // Get category labels for display
+    const categoryLabels = categories
+      .map(cat => ARTICLE_CATEGORIES[cat.toUpperCase() as keyof typeof ARTICLE_CATEGORIES]?.label || cat)
+      .join(', ');
 
     // Send success message
     await interaction.editReply({
@@ -59,6 +92,7 @@ export async function handleArticleCommand(interaction: ChatInputCommandInteract
           .setDescription(article.description || 'No description available')
           .setURL(article.url)
           .setImage(article.image_url || null)
+          .addFields({ name: 'Categories', value: categoryLabels })
           .setFooter({
             text: `Submitted by ${interaction.user.tag}`,
           })

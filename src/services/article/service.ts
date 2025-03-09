@@ -31,6 +31,20 @@ export class SupabaseArticleService implements ArticleService {
 
     return data;
   }
+
+  async getArticlesByCategory(category: string): Promise<Article[]> {
+    const { data, error } = await supabase
+      .from('articles')
+      .select()
+      .contains('categories', [category])
+      .order('submitted_at', { ascending: false });
+
+    if (error) {
+      throw new DatabaseError(`Failed to get articles by category: ${error.message}`);
+    }
+
+    return data;
+  }
 }
 
 // Export singleton instance
