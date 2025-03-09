@@ -4,8 +4,8 @@
   "description": "KUFE 채널을 위한 기술 아티클 공유 디스코드 봇",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
+    "build": "tsc && tsc-alias",
+    "start": "node -r tsconfig-paths/register dist/index.js",
     "dev": "nodemon --exec ts-node -r tsconfig-paths/register src/index.ts",
     "deploy": "ts-node -r tsconfig-paths/register src/deploy.ts",
     "test": "echo \"테스트가 설정되지 않았습니다\" && exit 1"
@@ -18,13 +18,14 @@
     "discord.js": "^14.18.0",
     "dotenv": "^16.4.7",
     "open-graph-scraper": "^6.9.0",
+    "tsconfig-paths": "^4.2.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/node": "^22.13.8",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
+    "tsc-alias": "^1.8.8",
     "typescript": "^5.8.2"
   }
 }

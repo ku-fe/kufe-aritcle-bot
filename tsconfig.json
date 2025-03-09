@@ -27,16 +27,16 @@
 
     /* Modules */
     "module": "commonjs",                                /* Specify what module code is generated. */
-    // "rootDir": "./",                                  /* Specify the root folder within your source files. */
+    "rootDir": "./src",
     "moduleResolution": "node",                     /* Specify how TypeScript looks up a file from a given module specifier. */
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "paths": {
-      "@/*": ["src/*"],
-      "@app/*": ["src/app/*"],
-      "@config/*": ["src/config/*"],
-      "@infrastructure/*": ["src/infrastructure/*"],
-      "@services/*": ["src/services/*"],
-      "@types/*": ["src/types/*"]
+      "@/*": ["./*"],
+      "@app/*": ["app/*"],
+      "@config/*": ["config/*"],
+      "@infrastructure/*": ["infrastructure/*"],
+      "@services/*": ["services/*"],
+      "@types/*": ["types/*"]
     },
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
@@ -117,5 +117,5 @@
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
   "exclude": ["node_modules"],
-  "include": ["./src/**/*.ts"]
+  "include": ["src/**/*"]
 }

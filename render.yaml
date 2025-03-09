@@ -2,8 +2,9 @@ services:
   - type: web
     name: kufe-article-bot
     env: node
-    buildCommand: npm install && npm run build
-    startCommand: npm run start
+    buildCommand: pnpm install && pnpm build
+    startCommand: pnpm start
+    healthCheckPath: /health
     envVars:
       - key: DISCORD_TOKEN
         sync: false
@@ -13,3 +14,4 @@ services:
         sync: false
       - key: SUPABASE_KEY
         sync: false
+    nodeVersion: 22

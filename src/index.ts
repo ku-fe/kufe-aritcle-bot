@@ -2,9 +2,26 @@ import { Events } from 'discord.js';
 import { client, initializeDiscordClient } from '@infrastructure/discord/client';
 import { initializeSupabaseClient } from '@infrastructure/supabase/client';
 import { registerInteractionHandlers } from '@app/events/interaction';
+import * as http from 'http';
+
+// HTTP 서버 생성
+const server = http.createServer((req, res) => {
+  if (req.url === '/health') {
+    res.writeHead(200);
+    res.end('OK');
+    return;
+  }
+  res.writeHead(404);
+  res.end();
+});
 
 async function bootstrap() {
   try {
+    // HTTP 서버 시작
+    server.listen(process.env.PORT || 3000, () => {
+      console.log(`HTTP 서버가 포트 ${process.env.PORT || 3000}에서 시작되었습니다`);
+    });
+
     // 외부 서비스 초기화
     await Promise.all([
       initializeDiscordClient(),
