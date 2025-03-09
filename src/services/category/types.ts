@@ -1,55 +1,45 @@
 import { z } from 'zod';
 
 export const ARTICLE_CATEGORIES = {
-  FRONTEND: {
-    value: 'frontend',
-    label: 'Frontend',
-    description: 'Frontend development, web frameworks, and UI libraries',
+  JAVASCRIPT: {
+    value: 'javascript',
+    label: 'JavaScript',
   },
-  BACKEND: {
-    value: 'backend',
-    label: 'Backend',
-    description: 'Backend development, APIs, and server-side technologies',
+  TYPESCRIPT: {
+    value: 'typescript',
+    label: 'TypeScript',
   },
-  DEVOPS: {
-    value: 'devops',
-    label: 'DevOps',
-    description: 'DevOps, CI/CD, and infrastructure',
+  REACT: {
+    value: 'react',
+    label: 'React',
   },
-  DATABASE: {
-    value: 'database',
-    label: 'Database',
-    description: 'Databases, data modeling, and query optimization',
+  NEXTJS: {
+    value: 'nextjs',
+    label: 'Next.js',
   },
-  MOBILE: {
-    value: 'mobile',
-    label: 'Mobile',
-    description: 'Mobile app development for iOS and Android',
+  WEB: {
+    value: 'web',
+    label: 'Web',
   },
-  AI_ML: {
-    value: 'ai-ml',
-    label: 'AI/ML',
-    description: 'Artificial Intelligence and Machine Learning',
+  LIBRARY: {
+    value: 'library',
+    label: 'Library',
   },
-  SECURITY: {
-    value: 'security',
-    label: 'Security',
-    description: 'Security, authentication, and data protection',
+  FRAMEWORK: {
+    value: 'framework',
+    label: 'Framework',
   },
-  ARCHITECTURE: {
-    value: 'architecture',
-    label: 'Architecture',
-    description: 'Software architecture and system design',
+  ESSAY: {
+    value: 'essay',
+    label: 'Essay',
   },
   CAREER: {
     value: 'career',
     label: 'Career',
-    description: 'Career development and software industry insights',
   },
-  OTHER: {
-    value: 'other',
-    label: 'Other',
-    description: 'Other technical topics',
+  ETC: {
+    value: 'etc',
+    label: 'Etc',
   },
 } as const;
 
@@ -58,19 +48,18 @@ export type CategoryValue = typeof ARTICLE_CATEGORIES[CategoryKey]['value'];
 
 export const categorySchema = z.object({
   value: z.enum([
-    'frontend',
-    'backend',
-    'devops',
-    'database',
-    'mobile',
-    'ai-ml',
-    'security',
-    'architecture',
+    'javascript',
+    'typescript',
+    'react',
+    'nextjs',
+    'web',
+    'library',
+    'framework',
+    'essay',
     'career',
-    'other'
+    'etc'
   ]),
   label: z.string(),
-  description: z.string(),
 });
 
 export type Category = z.infer<typeof categorySchema>;

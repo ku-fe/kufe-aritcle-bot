@@ -1,4 +1,4 @@
-import { Events, Interaction } from 'discord.js';
+import { Events, Interaction, MessageFlags } from 'discord.js';
 import { handleArticleCommand, handleArticleModalSubmit } from '../commands/article';
 import { handleHelpCommand } from '../commands/help';
 import { client } from '@infrastructure/discord/client';
@@ -19,7 +19,7 @@ export function registerInteractionHandlers(): void {
           default:
             await interaction.reply({
               content: '알 수 없는 명령어입니다. /help를 입력하여 사용 가능한 명령어를 확인하세요.',
-              ephemeral: true,
+              flags: MessageFlags.Ephemeral,
             });
         }
       } else if (interaction.isModalSubmit()) {
@@ -37,7 +37,7 @@ export function registerInteractionHandlers(): void {
         } else {
           await interaction.reply({
             content: errorMessage,
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
           });
         }
       }

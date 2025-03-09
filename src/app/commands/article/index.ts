@@ -11,6 +11,7 @@ import {
   TextInputStyle,
   ButtonInteraction,
   ButtonComponent,
+  MessageFlags,
 } from 'discord.js';
 import { ValidationError } from '@/types/errors';
 import { articleService } from '@services/article/service';
@@ -71,7 +72,7 @@ export async function handleArticleCommand(interaction: ChatInputCommandInteract
   const response = await interaction.reply({
     embeds: [embed],
     components: buttonRows,
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 
   // 버튼 인터랙션 수집
@@ -87,7 +88,7 @@ export async function handleArticleCommand(interaction: ChatInputCommandInteract
       if (selectedTags.size === 0) {
         await i.reply({
           content: '최소 하나의 태그를 선택해주세요.',
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
         return;
       }
@@ -126,7 +127,7 @@ export async function handleArticleCommand(interaction: ChatInputCommandInteract
       if (selectedTags.size >= 3) {
         await i.followUp({
           content: '태그는 최대 3개까지만 선택할 수 있습니다.',
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
         return;
       }
