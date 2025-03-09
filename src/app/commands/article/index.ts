@@ -1,14 +1,56 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
+import { 
+  ActionRowBuilder,
+  ChatInputCommandInteraction, 
+  EmbedBuilder,
+  ModalBuilder,
+  ModalSubmitInteraction,
+  TextInputBuilder,
+  TextInputStyle,
+} from 'discord.js';
 import { ValidationError } from '@/types/errors';
 import { articleService } from '@services/article/service';
 import { metadataService } from '@services/metadata/service';
 import { ARTICLE_CATEGORIES, CategoryValue } from '@services/category/types';
 
+const MODAL_ID = 'article-submit-modal';
+const URL_INPUT_ID = 'article-url';
+const CATEGORIES_INPUT_ID = 'article-categories';
+
 export async function handleArticleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
+  const modal = new ModalBuilder()
+    .setCustomId(MODAL_ID)
+    .setTitle('기술 아티클 제출');
+
+  const urlInput = new TextInputBuilder()
+    .setCustomId(URL_INPUT_ID)
+    .setLabel('아티클 URL')
+    .setPlaceholder('https://example.com/article')
+    .setStyle(TextInputStyle.Short)
+    .setRequired(true);
+
+  const categoriesInput = new TextInputBuilder()
+    .setCustomId(CATEGORIES_INPUT_ID)
+    .setLabel('카테고리 (쉼표로 구분)')
+    .setPlaceholder('frontend, backend, devops')
+    .setStyle(TextInputStyle.Short)
+    .setRequired(true);
+
+  const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(urlInput);
+  const secondRow = new ActionRowBuilder<TextInputBuilder>().addComponents(categoriesInput);
+
+  modal.addComponents(firstRow, secondRow);
+
+  await interaction.showModal(modal);
+}
+
+export async function handleArticleModalSubmit(interaction: ModalSubmitInteraction): Promise<void> {
+  if (interaction.customId !== MODAL_ID) return;
+
   await interaction.deferReply();
 
   try {
-    const url = interaction.options.getString('url', true);
+    const url = interaction.fields.getTextInputValue(URL_INPUT_ID);
+    const categoriesInput = interaction.fields.getTextInputValue(CATEGORIES_INPUT_ID);
 
     // URL 유효성 검사
     try {
@@ -17,25 +59,41 @@ export async function handleArticleCommand(interaction: ChatInputCommandInteract
       throw new ValidationError('올바른 URL을 입력해주세요.');
     }
 
-    // 카테고리 가져오기 (중복 제거 및 null 제거)
-    const rawCategories = [
-      interaction.options.getString('category1', true),
-      interaction.options.getString('category2', false),
-      interaction.options.getString('category3', false),
-    ].filter((category, index, self) => 
-      category !== null && self.indexOf(category) === index
-    );
+    // 채널 ID 확인
+    if (!interaction.channelId) {
+      throw new ValidationError('채널을 찾을 수 없습니다.');
+    }
+
+    // 카테고리 처리
+    const rawCategories = categoriesInput
+      .split(',')
+      .map(cat => cat.trim().toLowerCase())
+      .filter(cat => cat.length > 0);
 
     // 카테고리 유효성 검사
     const categories = rawCategories.map(cat => {
-      if (!Object.values(ARTICLE_CATEGORIES).some(c => c.value === cat)) {
-        throw new ValidationError(`유효하지 않은 카테고리입니다: ${cat}`);
+      const category = Object.values(ARTICLE_CATEGORIES).find(c => 
+        c.value === cat || c.label.toLowerCase() === cat
+      );
+
+      if (!category) {
+        throw new ValidationError(
+          `유효하지 않은 카테고리입니다: ${cat}\n사용 가능한 카테고리: ${
+            Object.values(ARTICLE_CATEGORIES)
+              .map(c => c.label)
+              .join(', ')
+          }`
+        );
       }
-      return cat;
+      return category.value;
     }) as CategoryValue[];
 
     if (categories.length === 0) {
       throw new ValidationError('최소 하나의 카테고리를 선택해주세요.');
+    }
+
+    if (categories.length > 3) {
+      throw new ValidationError('카테고리는 최대 3개까지만 선택할 수 있습니다.');
     }
 
     // 아티클 중복 확인
@@ -100,16 +158,12 @@ export async function handleArticleCommand(interaction: ChatInputCommandInteract
       ],
     });
   } catch (error) {
-    console.error('아티클 명령어 처리 중 오류 발생:', error);
+    console.error('아티클 제출 처리 중 오류 발생:', error);
     
     const errorMessage = error instanceof ValidationError
       ? error.message
       : '요청을 처리하는 중에 오류가 발생했습니다. 나중에 다시 시도해주세요.';
 
-    if (interaction.deferred) {
-      await interaction.editReply({ content: errorMessage });
-    } else {
-      await interaction.reply({ content: errorMessage });
-    }
+    await interaction.editReply({ content: errorMessage });
   }
 } 

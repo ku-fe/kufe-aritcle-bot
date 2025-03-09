@@ -1,42 +1,45 @@
 import { Events, Interaction } from 'discord.js';
-import { handleArticleCommand } from '../commands/article';
+import { handleArticleCommand, handleArticleModalSubmit } from '../commands/article';
 import { handleHelpCommand } from '../commands/help';
-import { client } from '../../infrastructure/discord/client';
+import { client } from '@infrastructure/discord/client';
 
 export function registerInteractionHandlers(): void {
   client.on(Events.InteractionCreate, async (interaction: Interaction) => {
-    if (!interaction.isChatInputCommand()) return;
-
-    const { commandName } = interaction;
-
     try {
-      switch (commandName) {
-        case 'article':
-          await handleArticleCommand(interaction);
-          break;
-        case 'help':
-          await handleHelpCommand(interaction);
-          break;
-        default:
-          await interaction.reply({
-            content: 'Unknown command. Use /help to see available commands.',
-            ephemeral: true,
-          });
+      if (interaction.isChatInputCommand()) {
+        const { commandName } = interaction;
+
+        switch (commandName) {
+          case 'article':
+            await handleArticleCommand(interaction);
+            break;
+          case 'help':
+            await handleHelpCommand(interaction);
+            break;
+          default:
+            await interaction.reply({
+              content: '알 수 없는 명령어입니다. /help를 입력하여 사용 가능한 명령어를 확인하세요.',
+              ephemeral: true,
+            });
+        }
+      } else if (interaction.isModalSubmit()) {
+        if (interaction.customId.startsWith('article-')) {
+          await handleArticleModalSubmit(interaction);
+        }
       }
     } catch (error) {
-      console.error('Error handling interaction:', error);
-      const errorMessage = 'An error occurred while processing your command.';
+      console.error('상호작용 처리 중 오류 발생:', error);
+      const errorMessage = '명령어를 처리하는 중에 오류가 발생했습니다.';
       
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({
-          content: errorMessage,
-          ephemeral: true,
-        });
-      } else {
-        await interaction.reply({
-          content: errorMessage,
-          ephemeral: true,
-        });
+      if (interaction.isRepliable()) {
+        if ('deferred' in interaction && interaction.deferred) {
+          await interaction.editReply({ content: errorMessage });
+        } else {
+          await interaction.reply({
+            content: errorMessage,
+            ephemeral: true,
+          });
+        }
       }
     }
   });
