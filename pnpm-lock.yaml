@@ -30,6 +30,9 @@ importers:
       '@types/node':
         specifier: ^22.13.8
         version: 22.13.8
+      '@wonse/tsconfig':
+        specifier: ^3.0.0
+        version: 3.0.0
       nodemon:
         specifier: ^3.1.9
         version: 3.1.9
@@ -157,6 +160,9 @@ packages:
   '@vladfrangu/async_event_emitter@2.4.6':
     resolution: {integrity: sha512-RaI5qZo6D2CVS6sTHFKg1v5Ohq/+Bo2LZ5gzUEwZ/WkHhwtGTCB/sVLw8ijOkAUxasZ+WshN/Rzj4ywsABJ5ZA==}
     engines: {node: '>=v14.0.0', npm: '>=7.0.0'}
+
+  '@wonse/tsconfig@3.0.0':
+    resolution: {integrity: sha512-hdixXBGOcIiIf2N26J4w6KMjvqrnJlE2EW3QUGZQo0GgQyK4we1FFWY1Jj4YPOAqQ2EvLvdHX7E20zIlFpqKvw==}
 
   acorn-walk@8.3.4:
     resolution: {integrity: sha512-ueEepnujpqee2o5aIYnvHU6C0A42MNdsIDeqy5BydrkuC5R1ZuUFnm27EeFJGoEHJQgn3uleRvmTXaJgfXbt4g==}
@@ -689,6 +695,8 @@ snapshots:
       '@types/node': 22.13.8
 
   '@vladfrangu/async_event_emitter@2.4.6': {}
+
+  '@wonse/tsconfig@3.0.0': {}
 
   acorn-walk@8.3.4:
     dependencies:

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { categorySchema } from '@services/category/types';
+import { categorySchema } from '@/services/category/types';
 
 export const articleSchema = z.object({
   id: z.string().uuid(),

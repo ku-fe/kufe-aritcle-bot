@@ -1,6 +1,6 @@
 import ogs from 'open-graph-scraper';
-import { ExternalServiceError } from '../../types/errors';
-import { ArticleMetadata, MetadataService } from './types';
+import { ExternalServiceError } from '@/types/errors';
+import { ArticleMetadata, MetadataService } from '@/services/metadata/types';
 
 export class OpenGraphMetadataService implements MetadataService {
   async scrapeMetadata(url: string): Promise<ArticleMetadata> {

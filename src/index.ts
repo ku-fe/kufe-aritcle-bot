@@ -1,7 +1,7 @@
 import { Events } from 'discord.js';
-import { client, initializeDiscordClient } from '@infrastructure/discord/client';
-import { initializeSupabaseClient } from '@infrastructure/supabase/client';
-import { registerInteractionHandlers } from '@app/events/interaction';
+import { client, initializeDiscordClient } from '@/infrastructure/discord/client';
+import { initializeSupabaseClient } from '@/infrastructure/supabase/client';
+import { registerInteractionHandlers } from '@/events/interaction';
 import * as http from 'http';
 
 // HTTP 서버 생성

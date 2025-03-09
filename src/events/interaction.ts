@@ -1,7 +1,7 @@
 import { Events, Interaction, MessageFlags } from 'discord.js';
 import { handleArticleCommand, handleArticleModalSubmit } from '../commands/article';
 import { handleHelpCommand } from '../commands/help';
-import { client } from '@infrastructure/discord/client';
+import { client } from '@/infrastructure/discord/client';
 
 export function registerInteractionHandlers(): void {
   client.on(Events.InteractionCreate, async (interaction: Interaction) => {
