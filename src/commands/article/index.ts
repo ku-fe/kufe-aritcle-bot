@@ -14,9 +14,9 @@ import {
   MessageFlags,
 } from 'discord.js';
 import { ValidationError } from '@/types/errors';
-import { articleService } from '@services/article/service';
-import { metadataService } from '@services/metadata/service';
-import { ARTICLE_CATEGORIES } from '@services/category/types';
+import { articleService } from '@/services/article/service';
+import { metadataService } from '@/services/metadata/service';
+import { ARTICLE_CATEGORIES } from '@/services/category/types';
 
 const MODAL_ID = 'article-submit-modal';
 const URL_INPUT_ID = 'article-url';
