@@ -1,46 +1,182 @@
 import { 
   ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   ChatInputCommandInteraction, 
+  ComponentType,
   EmbedBuilder,
   ModalBuilder,
   ModalSubmitInteraction,
   TextInputBuilder,
   TextInputStyle,
+  ButtonInteraction,
+  ButtonComponent,
 } from 'discord.js';
 import { ValidationError } from '@/types/errors';
 import { articleService } from '@services/article/service';
 import { metadataService } from '@services/metadata/service';
-import { ARTICLE_CATEGORIES, CategoryValue } from '@services/category/types';
+import { ARTICLE_CATEGORIES } from '@services/category/types';
 
 const MODAL_ID = 'article-submit-modal';
 const URL_INPUT_ID = 'article-url';
-const CATEGORIES_INPUT_ID = 'article-categories';
+const TAG_BUTTON_PREFIX = 'tag-button-';
+const SUBMIT_BUTTON_ID = 'submit-article';
+
+// 사용 가능한 태그 목록 생성
+const AVAILABLE_TAGS = Object.entries(ARTICLE_CATEGORIES).map(([key, category], index) => ({
+  id: (index + 1).toString(),
+  key,
+  ...category,
+}));
 
 export async function handleArticleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId(MODAL_ID)
-    .setTitle('기술 아티클 제출');
+  const selectedTags = new Set<string>();
 
-  const urlInput = new TextInputBuilder()
-    .setCustomId(URL_INPUT_ID)
-    .setLabel('아티클 URL')
-    .setPlaceholder('https://example.com/article')
-    .setStyle(TextInputStyle.Short)
-    .setRequired(true);
+  // 태그 선택을 위한 임베드 생성
+  const embed = new EmbedBuilder()
+    .setTitle('기술 아티클 태그 선택')
+    .setDescription('아래 버튼을 클릭하여 태그를 선택해주세요 (최대 3개)\n선택이 완료되면 "제출하기" 버튼을 클릭해주세요.');
 
-  const categoriesInput = new TextInputBuilder()
-    .setCustomId(CATEGORIES_INPUT_ID)
-    .setLabel('카테고리 (쉼표로 구분)')
-    .setPlaceholder('frontend, backend, devops')
-    .setStyle(TextInputStyle.Short)
-    .setRequired(true);
+  // 태그 버튼 생성
+  const buttonRows: ActionRowBuilder<ButtonBuilder>[] = [];
+  const buttons: ButtonBuilder[] = [];
 
-  const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(urlInput);
-  const secondRow = new ActionRowBuilder<TextInputBuilder>().addComponents(categoriesInput);
+  AVAILABLE_TAGS.forEach(tag => {
+    const button = new ButtonBuilder()
+      .setCustomId(`${TAG_BUTTON_PREFIX}${tag.id}`)
+      .setLabel(`${tag.label}`)
+      .setStyle(ButtonStyle.Secondary);
+    
+    buttons.push(button);
 
-  modal.addComponents(firstRow, secondRow);
+    // 5개의 버튼마다 새로운 행 생성
+    if (buttons.length === 5 || tag.id === AVAILABLE_TAGS[AVAILABLE_TAGS.length - 1].id) {
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(buttons.splice(0, 5));
+      buttonRows.push(row);
+    }
+  });
 
-  await interaction.showModal(modal);
+  // 제출 버튼 추가
+  const submitRow = new ActionRowBuilder<ButtonBuilder>()
+    .addComponents(
+      new ButtonBuilder()
+        .setCustomId(SUBMIT_BUTTON_ID)
+        .setLabel('제출하기')
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(true)
+    );
+
+  buttonRows.push(submitRow);
+
+  const response = await interaction.reply({
+    embeds: [embed],
+    components: buttonRows,
+    ephemeral: true,
+  });
+
+  // 버튼 인터랙션 수집
+  const collector = response.createMessageComponentCollector({
+    componentType: ComponentType.Button,
+    time: 180_000, // 3분
+  });
+
+  collector.on('collect', async (i: ButtonInteraction) => {
+    if (!i.customId.startsWith(TAG_BUTTON_PREFIX) && i.customId !== SUBMIT_BUTTON_ID) return;
+
+    if (i.customId === SUBMIT_BUTTON_ID) {
+      if (selectedTags.size === 0) {
+        await i.reply({
+          content: '최소 하나의 태그를 선택해주세요.',
+          ephemeral: true,
+        });
+        return;
+      }
+
+      collector.stop();
+
+      // URL 입력 모달 표시
+      const modal = new ModalBuilder()
+        .setCustomId(MODAL_ID)
+        .setTitle('기술 아티클 공유');
+
+      const urlInput = new TextInputBuilder()
+        .setCustomId(URL_INPUT_ID)
+        .setLabel('아티클 URL')
+        .setPlaceholder('https://example.com/article')
+        .setStyle(TextInputStyle.Short)
+        .setRequired(true);
+
+      const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(urlInput);
+      modal.addComponents(firstRow);
+
+      await i.showModal(modal);
+      return;
+    }
+
+    await i.deferUpdate();
+
+    const tagId = i.customId.replace(TAG_BUTTON_PREFIX, '');
+    const tag = AVAILABLE_TAGS.find(t => t.id === tagId);
+    if (!tag) return;
+
+    // 태그 선택 상태 업데이트
+    if (selectedTags.has(tagId)) {
+      selectedTags.delete(tagId);
+    } else {
+      if (selectedTags.size >= 3) {
+        await i.followUp({
+          content: '태그는 최대 3개까지만 선택할 수 있습니다.',
+          ephemeral: true,
+        });
+        return;
+      }
+      selectedTags.add(tagId);
+    }
+
+    // 버튼 행 다시 생성
+    const newButtonRows: ActionRowBuilder<ButtonBuilder>[] = [];
+    const newButtons: ButtonBuilder[] = [];
+
+    AVAILABLE_TAGS.forEach(tag => {
+      const button = new ButtonBuilder()
+        .setCustomId(`${TAG_BUTTON_PREFIX}${tag.id}`)
+        .setLabel(tag.label)
+        .setStyle(selectedTags.has(tag.id) ? ButtonStyle.Primary : ButtonStyle.Secondary);
+      
+      newButtons.push(button);
+
+      if (newButtons.length === 5 || tag.id === AVAILABLE_TAGS[AVAILABLE_TAGS.length - 1].id) {
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(newButtons.splice(0, 5));
+        newButtonRows.push(row);
+      }
+    });
+
+    // 제출 버튼 추가
+    const submitRow = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId(SUBMIT_BUTTON_ID)
+          .setLabel('제출하기')
+          .setStyle(ButtonStyle.Primary)
+          .setDisabled(selectedTags.size === 0)
+      );
+
+    newButtonRows.push(submitRow);
+
+    await i.editReply({
+      embeds: [embed],
+      components: newButtonRows,
+    });
+  });
+
+  collector.on('end', async (_collected, reason) => {
+    if (reason === 'time') {
+      await interaction.editReply({
+        content: '시간이 초과되었습니다. 다시 시도해주세요.',
+        components: [],
+      });
+    }
+  });
 }
 
 export async function handleArticleModalSubmit(interaction: ModalSubmitInteraction): Promise<void> {
@@ -50,7 +186,6 @@ export async function handleArticleModalSubmit(interaction: ModalSubmitInteracti
 
   try {
     const url = interaction.fields.getTextInputValue(URL_INPUT_ID);
-    const categoriesInput = interaction.fields.getTextInputValue(CATEGORIES_INPUT_ID);
 
     // URL 유효성 검사
     try {
@@ -64,37 +199,25 @@ export async function handleArticleModalSubmit(interaction: ModalSubmitInteracti
       throw new ValidationError('채널을 찾을 수 없습니다.');
     }
 
-    // 카테고리 처리
-    const rawCategories = categoriesInput
-      .split(',')
-      .map(cat => cat.trim().toLowerCase())
-      .filter(cat => cat.length > 0);
+    // 선택된 태그 찾기
+    const selectedButtons = interaction.message?.components
+      ?.flatMap(row => row.components)
+      .filter(component => {
+        if (component instanceof ButtonComponent) {
+          return component.customId?.startsWith(TAG_BUTTON_PREFIX) && 
+                 component.style === ButtonStyle.Primary;
+        }
+        return false;
+      }) ?? [];
 
-    // 카테고리 유효성 검사
-    const categories = rawCategories.map(cat => {
-      const category = Object.values(ARTICLE_CATEGORIES).find(c => 
-        c.value === cat || c.label.toLowerCase() === cat
-      );
-
-      if (!category) {
-        throw new ValidationError(
-          `유효하지 않은 카테고리입니다: ${cat}\n사용 가능한 카테고리: ${
-            Object.values(ARTICLE_CATEGORIES)
-              .map(c => c.label)
-              .join(', ')
-          }`
-        );
+    const categories = selectedButtons.map(button => {
+      const tagId = button.customId?.replace(TAG_BUTTON_PREFIX, '');
+      const tag = AVAILABLE_TAGS.find(t => t.id === tagId);
+      if (!tag) {
+        throw new ValidationError('유효하지 않은 태그가 선택되었습니다.');
       }
-      return category.value;
-    }) as CategoryValue[];
-
-    if (categories.length === 0) {
-      throw new ValidationError('최소 하나의 카테고리를 선택해주세요.');
-    }
-
-    if (categories.length > 3) {
-      throw new ValidationError('카테고리는 최대 3개까지만 선택할 수 있습니다.');
-    }
+      return ARTICLE_CATEGORIES[tag.key as keyof typeof ARTICLE_CATEGORIES].value;
+    });
 
     // 아티클 중복 확인
     const existingArticle = await articleService.getArticleByUrl(url);
@@ -111,7 +234,7 @@ export async function handleArticleModalSubmit(interaction: ModalSubmitInteracti
             .setDescription(existingArticle.description || '설명 없음')
             .setURL(existingArticle.url)
             .setImage(existingArticle.image_url || null)
-            .addFields({ name: '카테고리', value: categoryLabels })
+            .addFields({ name: '태그', value: categoryLabels })
             .setFooter({
               text: `이전 등록자: ${interaction.user.tag}`,
             })
@@ -136,7 +259,7 @@ export async function handleArticleModalSubmit(interaction: ModalSubmitInteracti
       categories,
     });
 
-    // 카테고리 레이블 생성
+    // 태그 레이블 생성
     const categoryLabels = categories
       .map(cat => ARTICLE_CATEGORIES[cat.toUpperCase() as keyof typeof ARTICLE_CATEGORIES]?.label || cat)
       .join(', ');
@@ -150,7 +273,7 @@ export async function handleArticleModalSubmit(interaction: ModalSubmitInteracti
           .setDescription(article.description || '설명 없음')
           .setURL(article.url)
           .setImage(article.image_url || null)
-          .addFields({ name: '카테고리', value: categoryLabels })
+          .addFields({ name: '태그', value: categoryLabels })
           .setFooter({
             text: `등록자: ${interaction.user.tag}`,
           })
