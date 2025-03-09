@@ -1,14 +1,14 @@
 {
   "name": "kufe-article-bot",
   "version": "1.0.0",
-  "description": "Discord bot for submitting technical articles to KUFE channel",
+  "description": "KUFE 채널을 위한 기술 아티클 공유 디스코드 봇",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "nodemon --exec ts-node -r tsconfig-paths/register src/index.ts",
     "deploy": "ts-node -r tsconfig-paths/register src/deploy.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"테스트가 설정되지 않았습니다\" && exit 1"
   },
   "keywords": [],
   "author": "",

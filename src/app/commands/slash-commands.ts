@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { ARTICLE_CATEGORIES } from '@services/category/types';
 
-// Convert ARTICLE_CATEGORIES to choices array
+// 카테고리 선택지 배열 생성
 const categoryChoices = Object.values(ARTICLE_CATEGORIES).map(category => ({
   name: `${category.label} - ${category.description}`,
   value: category.value
@@ -9,37 +9,37 @@ const categoryChoices = Object.values(ARTICLE_CATEGORIES).map(category => ({
 
 export const articleCommand = new SlashCommandBuilder()
   .setName('article')
-  .setDescription('Submit a technical article URL')
+  .setDescription('기술 아티클 URL 제출하기')
   .addStringOption(option =>
     option
       .setName('url')
-      .setDescription('The URL of the article to submit')
+      .setDescription('제출할 아티클의 URL')
       .setRequired(true)
   )
   .addStringOption(option =>
     option
       .setName('category1')
-      .setDescription('First category (required)')
+      .setDescription('첫 번째 카테고리 (필수)')
       .setRequired(true)
       .addChoices(...categoryChoices)
   )
   .addStringOption(option =>
     option
       .setName('category2')
-      .setDescription('Second category (optional)')
+      .setDescription('두 번째 카테고리 (선택)')
       .setRequired(false)
       .addChoices(...categoryChoices)
   )
   .addStringOption(option =>
     option
       .setName('category3')
-      .setDescription('Third category (optional)')
+      .setDescription('세 번째 카테고리 (선택)')
       .setRequired(false)
       .addChoices(...categoryChoices)
   );
 
 export const helpCommand = new SlashCommandBuilder()
   .setName('help')
-  .setDescription('Show help information');
+  .setDescription('도움말 보기');
 
 export const commands = [articleCommand, helpCommand]; 

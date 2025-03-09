@@ -8,9 +8,9 @@ export async function initializeSupabaseClient(): Promise<void> {
   try {
     const { error } = await supabase.from('articles').select('id').limit(1);
     if (error) throw new DatabaseError(error.message);
-    console.log('Supabase client initialized successfully');
+    console.log('Supabase 클라이언트가 성공적으로 초기화되었습니다');
   } catch (error) {
-    console.error('Failed to initialize Supabase client:', error);
+    console.error('Supabase 클라이언트 초기화 실패:', error);
     throw error;
   }
 } 

@@ -12,18 +12,18 @@ export class AppError extends Error {
 
 export class ValidationError extends AppError {
   constructor(message: string) {
-    super(message, 'VALIDATION_ERROR', 400);
+    super(message, '유효성_검사_오류', 400);
   }
 }
 
 export class ExternalServiceError extends AppError {
   constructor(message: string, service: string) {
-    super(`${service} Error: ${message}`, 'EXTERNAL_SERVICE_ERROR', 500);
+    super(`${service} 오류: ${message}`, '외부_서비스_오류', 500);
   }
 }
 
 export class DatabaseError extends AppError {
   constructor(message: string) {
-    super(message, 'DATABASE_ERROR', 500);
+    super(message, '데이터베이스_오류', 500);
   }
 } 

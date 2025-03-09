@@ -12,9 +12,9 @@ export const client = new Client({
 export async function initializeDiscordClient(): Promise<void> {
   try {
     await client.login(env.DISCORD_TOKEN);
-    console.log('Discord client initialized successfully');
+    console.log('디스코드 클라이언트가 성공적으로 초기화되었습니다');
   } catch (error) {
-    console.error('Failed to initialize Discord client:', error);
+    console.error('디스코드 클라이언트 초기화 실패:', error);
     throw error;
   }
 } 
