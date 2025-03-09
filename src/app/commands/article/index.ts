@@ -35,7 +35,7 @@ export async function handleArticleCommand(interaction: ChatInputCommandInteract
   // 태그 선택을 위한 임베드 생성
   const embed = new EmbedBuilder()
     .setTitle('기술 아티클 태그 선택')
-    .setDescription('아래 버튼을 클릭하여 태그를 선택해주세요 (최대 3개)\n선택이 완료되면 "제출하기" 버튼을 클릭해주세요.');
+    .setDescription('아래 버튼을 클릭하여 태그를 선택해주세요 (최대 3개)\n선택이 완료되면 "다음 " 버튼을 클릭해주세요.');
 
   // 태그 버튼 생성
   const buttonRows: ActionRowBuilder<ButtonBuilder>[] = [];
@@ -61,7 +61,7 @@ export async function handleArticleCommand(interaction: ChatInputCommandInteract
     .addComponents(
       new ButtonBuilder()
         .setCustomId(SUBMIT_BUTTON_ID)
-        .setLabel('제출하기')
+        .setLabel('다음')
         .setStyle(ButtonStyle.Primary)
         .setDisabled(true)
     );
