@@ -1,5 +1,5 @@
-import { supabase } from '../../infrastructure/supabase/client';
-import { DatabaseError } from '../../types/errors';
+import { supabase } from '@infrastructure/supabase/client';
+import { DatabaseError } from '@/types/errors';
 import { Article, ArticleService, CreateArticleInput } from './types';
 
 export class SupabaseArticleService implements ArticleService {

@@ -1,5 +1,5 @@
 import { Client, GatewayIntentBits } from 'discord.js';
-import { env } from '../../config/config';
+import { env } from '@config/config';
 
 export const client = new Client({
   intents: [
@@ -12,7 +12,7 @@ export const client = new Client({
 export async function initializeDiscordClient(): Promise<void> {
   try {
     await client.login(env.DISCORD_TOKEN);
-    console.log(`Discord client initialized successfully`);
+    console.log('Discord client initialized successfully');
   } catch (error) {
     console.error('Failed to initialize Discord client:', error);
     throw error;

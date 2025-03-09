@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { ARTICLE_CATEGORIES } from '../../services/category/types';
+import { ARTICLE_CATEGORIES } from '@services/category/types';
 
 // Convert ARTICLE_CATEGORIES to choices array
 const categoryChoices = Object.values(ARTICLE_CATEGORIES).map(category => ({

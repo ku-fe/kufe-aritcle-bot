@@ -1,8 +1,8 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
-import { ValidationError } from '../../../types/errors';
-import { articleService } from '../../../services/article/service';
-import { metadataService } from '../../../services/metadata/service';
-import { ARTICLE_CATEGORIES, CategoryValue } from '../../../services/category/types';
+import { ValidationError } from '@/types/errors';
+import { articleService } from '@services/article/service';
+import { metadataService } from '@services/metadata/service';
+import { ARTICLE_CATEGORIES, CategoryValue } from '@services/category/types';
 
 export async function handleArticleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
   await interaction.deferReply();

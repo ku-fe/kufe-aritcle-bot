@@ -1,5 +1,5 @@
 import { REST, Routes } from 'discord.js';
-import { env } from '../../config/config';
+import { env } from '@config/config';
 import { commands } from './slash-commands';
 
 export async function deployCommands(): Promise<void> {
