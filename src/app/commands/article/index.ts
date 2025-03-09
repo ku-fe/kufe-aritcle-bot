@@ -93,7 +93,7 @@ export async function handleArticleCommand(interaction: ChatInputCommandInteract
         return;
       }
 
-      collector.stop();
+      collector.stop('modal_opened');
 
       // URL 입력 모달 표시
       const modal = new ModalBuilder()
@@ -174,6 +174,11 @@ export async function handleArticleCommand(interaction: ChatInputCommandInteract
     if (reason === 'time') {
       await interaction.editReply({
         content: '시간이 초과되었습니다. 다시 시도해주세요.',
+        components: [],
+      });
+    } else if (reason === 'modal_opened') {
+      await interaction.editReply({
+        content: '태그 선택이 완료되었습니다.',
         components: [],
       });
     }
