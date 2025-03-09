@@ -2,12 +2,9 @@
   "extends": "@wonse/tsconfig/tsconfig-node.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "outDir": "dist",
     "paths": {
       "@/*": ["src/*"]
     },
-    "verbatimModuleSyntax": false,
-    "lib": ["ES2021", "DOM"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["node_modules", "dist"]
