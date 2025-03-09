@@ -51,7 +51,8 @@ export async function handleArticleCommand(interaction: ChatInputCommandInteract
     buttons.push(button);
 
     // 5개의 버튼마다 새로운 행 생성
-    if (buttons.length === 5 || tag.id === AVAILABLE_TAGS[AVAILABLE_TAGS.length - 1].id) {
+    const isLastTag = AVAILABLE_TAGS.length > 0 && tag.id === AVAILABLE_TAGS[AVAILABLE_TAGS.length - 1]?.id;
+    if (buttons.length === 5 || isLastTag) {
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(buttons.splice(0, 5));
       buttonRows.push(row);
     }
@@ -146,7 +147,8 @@ export async function handleArticleCommand(interaction: ChatInputCommandInteract
       
       newButtons.push(button);
 
-      if (newButtons.length === 5 || tag.id === AVAILABLE_TAGS[AVAILABLE_TAGS.length - 1].id) {
+      const isLastTag = AVAILABLE_TAGS.length > 0 && tag.id === AVAILABLE_TAGS[AVAILABLE_TAGS.length - 1]?.id;
+      if (newButtons.length === 5 || isLastTag) {
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(newButtons.splice(0, 5));
         newButtonRows.push(row);
       }
