@@ -1,5 +1,5 @@
 import { Client, Events, GatewayIntentBits } from 'discord.js';
-import { env, botConfig } from './config/config';
+import { env } from './config/config';
 import { handleArticleCommand } from './commands/article';
 import { handleHelpCommand } from './commands/help';
 
@@ -15,27 +15,32 @@ client.once(Events.ClientReady, (readyClient) => {
   console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
 
-client.on(Events.MessageCreate, async (message) => {
-  // Ignore messages from bots
-  if (message.author.bot) return;
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (!interaction.isChatInputCommand()) return;
 
-  // Check if message starts with prefix
-  if (!message.content.startsWith(botConfig.prefix)) return;
+  const { commandName } = interaction;
 
-  // Parse command and arguments
-  const args = message.content.slice(botConfig.prefix.length).trim().split(/ +/);
-  const command = args.shift()?.toLowerCase();
-
-  // Handle commands
-  switch (command) {
-    case botConfig.commands.article:
-      await handleArticleCommand(message, args);
-      break;
-    case botConfig.commands.help:
-      await handleHelpCommand(message);
-      break;
-    default:
-      await message.reply('Unknown command. Use !help to see available commands.');
+  try {
+    switch (commandName) {
+      case 'article': {
+        const url = interaction.options.getString('url', true);
+        await handleArticleCommand(interaction, [url]);
+        break;
+      }
+      case 'help':
+        await handleHelpCommand(interaction);
+        break;
+      default:
+        await interaction.reply('Unknown command. Use /help to see available commands.');
+    }
+  } catch (error) {
+    console.error('Error handling command:', error);
+    const errorMessage = 'An error occurred while processing your command.';
+    if (interaction.replied || interaction.deferred) {
+      await interaction.followUp({ content: errorMessage, ephemeral: true });
+    } else {
+      await interaction.reply({ content: errorMessage, ephemeral: true });
+    }
   }
 });
 

@@ -10,6 +10,7 @@ const envSchema = z.object({
   SUPABASE_URL: z.string().url(),
   SUPABASE_KEY: z.string(),
   COMMAND_PREFIX: z.string().default('!'),
+  CLIENT_ID: z.string(),
 });
 
 // Validate and export environment variables
