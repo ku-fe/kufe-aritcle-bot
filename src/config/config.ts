@@ -21,6 +21,6 @@ export const botConfig = {
   prefix: env.COMMAND_PREFIX,
   commands: {
     article: 'article', // Command to submit an article
-    help: 'help',      // Command to show help
+    help: 'help', // Command to show help
   },
-} as const; 
+} as const;

@@ -1,6 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
 import { env } from '@/config/config';
 import { DatabaseError } from '@/types/errors';
+import { createClient } from '@supabase/supabase-js';
 
 export const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
 
@@ -13,4 +13,4 @@ export async function initializeSupabaseClient(): Promise<void> {
     console.error('Supabase 클라이언트 초기화 실패:', error);
     throw error;
   }
-} 
+}

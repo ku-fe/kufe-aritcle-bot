@@ -8,4 +8,4 @@ export const helpCommand = new SlashCommandBuilder()
   .setName('help')
   .setDescription('도움말 보기');
 
-export const commands = [articleCommand, helpCommand]; 
+export const commands = [articleCommand, helpCommand];

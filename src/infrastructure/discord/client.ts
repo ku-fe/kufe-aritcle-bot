@@ -1,5 +1,5 @@
-import { Client, GatewayIntentBits } from 'discord.js';
 import { env } from '@/config/config';
+import { Client, GatewayIntentBits } from 'discord.js';
 
 export const client = new Client({
   intents: [
@@ -30,9 +30,8 @@ export async function initializeDiscordClient(): Promise<void> {
         client.login(env.DISCORD_TOKEN).catch(console.error);
       }
     }, 30000); // 30초마다 확인
-
   } catch (error) {
     console.error('디스코드 클라이언트 초기화 실패:', error);
     throw error;
   }
-} 
+}

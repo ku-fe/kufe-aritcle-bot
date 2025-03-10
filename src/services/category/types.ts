@@ -44,7 +44,7 @@ export const ARTICLE_CATEGORIES = {
 } as const;
 
 export type CategoryKey = keyof typeof ARTICLE_CATEGORIES;
-export type CategoryValue = typeof ARTICLE_CATEGORIES[CategoryKey]['value'];
+export type CategoryValue = (typeof ARTICLE_CATEGORIES)[CategoryKey]['value'];
 
 export const categorySchema = z.object({
   value: z.enum([
@@ -57,11 +57,11 @@ export const categorySchema = z.object({
     'framework',
     'essay',
     'career',
-    'etc'
+    'etc',
   ]),
   label: z.string(),
 });
 
 export type Category = z.infer<typeof categorySchema>;
 
-export const categoriesArraySchema = z.array(categorySchema); 
+export const categoriesArraySchema = z.array(categorySchema);

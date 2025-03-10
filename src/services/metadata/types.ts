@@ -9,5 +9,5 @@ export const metadataSchema = z.object({
 export type ArticleMetadata = z.infer<typeof metadataSchema>;
 
 export interface MetadataService {
-  scrapeMetadata(url: string): Promise<ArticleMetadata>;
-} 
+  scrapeMetadata: (url: string) => Promise<ArticleMetadata>;
+}

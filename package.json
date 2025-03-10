@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "KUFE 채널을 위한 기술 아티클 공유 디스코드 봇",
   "main": "dist/index.js",
-  "type": "module",
   "scripts": {
     "build": "tsc && tsc-alias && cp package.json dist/",
     "start": "node dist/index.js",
@@ -26,7 +25,7 @@
   "devDependencies": {
     "@types/node": "^22.13.8",
     "@wonse/eslint-ts": "^5.0.0",
-    "@wonse/tsconfig": "^3.0.1",
+    "@wonse/tsconfig": "^3.0.4",
     "eslint": "^9.22.0",
     "nodemon": "^3.1.9",
     "prettier": "^3.5.3",

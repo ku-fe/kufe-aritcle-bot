@@ -34,8 +34,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0(eslint@9.22.0)(typescript@5.8.2)
       '@wonse/tsconfig':
-        specifier: ^3.0.1
-        version: 3.0.1
+        specifier: ^3.0.4
+        version: 3.0.4
       eslint:
         specifier: ^9.22.0
         version: 9.22.0
@@ -298,8 +298,8 @@ packages:
       eslint: '>=9.2.0'
       typescript: '>=5.0.0'
 
-  '@wonse/tsconfig@3.0.1':
-    resolution: {integrity: sha512-rqSjsQxs/lglBfevfLmXhL/TZKm2cxNTWJ8R2hqR4JOo7VFX06u3OSljvz03SUVnsgynbOGa5NR7ZNmRdrtspQ==}
+  '@wonse/tsconfig@3.0.4':
+    resolution: {integrity: sha512-14vJ9pz8x9mtN94CpdWWmIbMnherhDE+C4J9J32I1STM+aKxiTkpPjBW/QS9psUGJeDavVuid5ejuOK9NyNcwQ==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -1741,7 +1741,7 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  '@wonse/tsconfig@3.0.1': {}
+  '@wonse/tsconfig@3.0.4': {}
 
   acorn-jsx@5.3.2(acorn@8.14.0):
     dependencies:
