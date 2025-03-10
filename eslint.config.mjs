@@ -1,3 +1,3 @@
-import wonseEslintTs from "@wonse/eslint-ts";
+import wonseEslintTs from '@wonse/eslint-ts';
 
 export default [...wonseEslintTs];
