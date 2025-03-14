@@ -10,8 +10,14 @@ import * as http from 'http';
 // HTTP 서버 생성
 const server = http.createServer((req, res) => {
   if (req.url === '/health') {
-    res.writeHead(200);
-    res.end('OK');
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(
+      JSON.stringify({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        discordStatus: client.isReady() ? 'connected' : 'disconnected',
+      }),
+    );
     return;
   }
   res.writeHead(404);
