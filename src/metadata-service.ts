@@ -14,7 +14,20 @@ export async function extractMetadata(
   try {
     console.log(`🔍 URL 메타데이터 추출 중: ${url}`);
 
-    const { result, error } = await ogs({ url });
+    const options = {
+      url,
+      headers: {
+        'user-agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'accept-language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+      },
+      timeout: 10000, // 10초 타임아웃
+      downloadLimit: 1000000, // 다운로드 제한 1MB
+    };
+
+    const { result, error } = await ogs(options);
 
     if (error) {
       console.error('❌ 메타데이터 추출 오류:', error);
