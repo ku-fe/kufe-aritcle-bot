@@ -12,8 +12,6 @@ export async function extractMetadata(
   url: string,
 ): Promise<ArticleMetadata | null> {
   try {
-    console.log(`🔍 URL 메타데이터 추출 중: ${url}`);
-
     const options = {
       url,
       headers: {
@@ -30,7 +28,7 @@ export async function extractMetadata(
     const { result, error } = await ogs(options);
 
     if (error) {
-      console.error('❌ 메타데이터 추출 오류:', error);
+      console.error('메타데이터 추출 오류:', error);
       return null;
     }
 
@@ -41,10 +39,9 @@ export async function extractMetadata(
         result.ogImage?.[0]?.url || result.twitterImage?.[0]?.url || null,
     };
 
-    console.log(`✅ 메타데이터 추출 성공: ${metadata.title}`);
     return metadata;
   } catch (error) {
-    console.error('❌ 메타데이터 추출 중 예외 발생:', error);
+    console.error('메타데이터 추출 중 예외 발생:', error);
     return null;
   }
 }
