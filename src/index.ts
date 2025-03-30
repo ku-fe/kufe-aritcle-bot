@@ -1,52 +1,58 @@
-import { registerInteractionHandlers } from '@/events/interaction';
-import {
-  client,
-  initializeDiscordClient,
-} from '@/infrastructure/discord/client';
-import { initializeSupabaseClient } from '@/infrastructure/supabase/client';
-import { Events } from 'discord.js';
-import * as http from 'http';
+import { Client, Events, GatewayIntentBits } from 'discord.js';
+import 'dotenv/config';
+import { setupForumHandler } from './forum-handler';
+import { createSupabaseClient } from './supabase-client';
 
-// HTTP 서버 생성
-const server = http.createServer((req, res) => {
-  if (req.url === '/health') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(
-      JSON.stringify({
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        discordStatus: client.isReady() ? 'connected' : 'disconnected',
-      }),
-    );
-    return;
-  }
-  res.writeHead(404);
-  res.end();
-});
+// 환경 변수 확인
+const requiredEnvVars = [
+  'DISCORD_TOKEN',
+  'FORUM_CHANNEL_ID',
+  'SUPABASE_URL',
+  'SUPABASE_KEY',
+];
 
-async function bootstrap() {
-  try {
-    // HTTP 서버 시작
-    server.listen(process.env.PORT || 3000, () => {
-      console.log(
-        `HTTP 서버가 포트 ${String(process.env.PORT || 3000)}에서 시작되었습니다`,
-      );
-    });
-
-    // 외부 서비스 초기화
-    await Promise.all([initializeDiscordClient(), initializeSupabaseClient()]);
-
-    // 이벤트 핸들러 등록
-    registerInteractionHandlers();
-
-    // 봇 준비 완료 시 로그
-    client.once(Events.ClientReady, (readyClient) => {
-      console.log(`준비 완료! ${readyClient.user.tag}로 로그인됨`);
-    });
-  } catch (error) {
-    console.error('애플리케이션 시작 실패:', error);
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    console.error(`Error: ${envVar} is not set in the environment variables`);
     process.exit(1);
   }
 }
 
-void bootstrap();
+// Discord 클라이언트 초기화
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
+});
+
+// 클라이언트 시작 및 초기화
+async function startBot() {
+  try {
+    // Supabase 클라이언트 초기화
+    await createSupabaseClient();
+
+    // 포럼 핸들러 설정
+    setupForumHandler(client);
+
+    // 봇 로그인
+    await client.login(process.env.DISCORD_TOKEN);
+
+    client.once(Events.ClientReady, (readyClient) => {
+      console.log(`✅ 봇이 준비되었습니다: ${readyClient.user.tag}`);
+      console.log(`✅ 포럼 채널 ID: ${process.env.FORUM_CHANNEL_ID}`);
+    });
+
+    // 에러 처리
+    client.on(Events.Error, (error) => {
+      console.error('Discord 클라이언트 에러:', error);
+    });
+  } catch (error) {
+    console.error('봇 시작 중 오류 발생:', error);
+    process.exit(1);
+  }
+}
+
+// 봇 시작
+startBot();
