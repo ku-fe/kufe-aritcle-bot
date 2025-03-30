@@ -6,18 +6,60 @@ const FORUM_CHANNEL_ID = process.env.FORUM_CHANNEL_ID!;
 
 // 카테고리 매핑 (포럼 태그 -> 카테고리)
 const TAG_TO_CATEGORY_MAP: Record<string, string> = {
+  // Web 카테고리
   frontend: 'web',
+  'front-end': 'web',
+  'front end': 'web',
+  프론트엔드: 'web',
   backend: 'web',
+  'back-end': 'web',
+  'back end': 'web',
+  백엔드: 'web',
   devops: 'web',
+  'dev ops': 'web',
+  'dev-ops': 'web',
+  데브옵스: 'web',
+  웹: 'web',
+  web: 'web',
   mobile: 'web',
+  모바일: 'web',
+
+  // Etc 카테고리
   ai: 'etc',
+  'a.i.': 'etc',
+  'artificial intelligence': 'etc',
+  인공지능: 'etc',
   blockchain: 'etc',
+  블록체인: 'etc',
   security: 'etc',
-  architecture: 'framework',
-  database: 'library',
-  testing: 'library',
-  career: 'career',
+  보안: 'etc',
+  기타: 'etc',
+  etc: 'etc',
   other: 'etc',
+
+  // Framework 카테고리
+  architecture: 'framework',
+  아키텍처: 'framework',
+  framework: 'framework',
+  프레임워크: 'framework',
+
+  // Library 카테고리
+  database: 'library',
+  db: 'library',
+  데이터베이스: 'library',
+  testing: 'library',
+  test: 'library',
+  테스트: 'library',
+  library: 'library',
+  라이브러리: 'library',
+
+  // Career 카테고리
+  career: 'career',
+  커리어: 'career',
+  취업: 'career',
+  job: 'career',
+  면접: 'career',
+  interview: 'career',
 };
 
 // 포럼 스레드 이벤트 핸들러 설정
@@ -99,18 +141,98 @@ export function setupForumHandler(client: Client) {
           console.log(
             `🔍 응용된 태그: ${thread.appliedTags?.join(', ') || '없음'}`,
           );
+
+          // 사용 가능한 모든 태그 로깅
+          console.log('🔍 사용 가능한 태그 목록:');
+          parent.availableTags.forEach((tag) => {
+            console.log(`   - ${tag.id}: ${tag.name}`);
+          });
+
+          console.log('🔍 thread 객체 정보:', {
+            id: thread.id,
+            name: thread.name,
+            appliedTagsIds: thread.appliedTags,
+            appliedTagsCount: thread.appliedTags?.length || 0,
+          });
+
+          // 포럼 태그 이름을 직접 가져와서 카테고리로 사용
           const categories = (thread.appliedTags || [])
             .map((tagId) => {
               const tag = parent.availableTags.find((t) => t.id === tagId);
-              if (!tag?.name) return null;
+              if (!tag?.name) {
+                console.log(
+                  `⚠️ 태그 ID에 해당하는 태그를 찾을 수 없음: ${tagId}`,
+                );
+                return null;
+              }
 
-              const category = TAG_TO_CATEGORY_MAP[tag.name.toLowerCase()];
+              // 태그 이름과 이를 정규화한 버전 로깅
+              const tagName = tag.name;
+              const normalizedTagName = tagName.toLowerCase().trim();
               console.log(
-                `🔍 태그 매핑: ${tag.name} -> ${category || '매칭 없음'}`,
+                `🔍 원본 태그 이름: "${tagName}", 정규화됨: "${normalizedTagName}"`,
               );
+
+              // 1. 기존 매핑 테이블에서 태그 이름 확인 (폴백 메커니즘)
+              let category = TAG_TO_CATEGORY_MAP[normalizedTagName];
+
+              // 2. 매핑이 없으면 태그 이름 자체를 카테고리로 사용
+              if (!category) {
+                // 기존 부분 매칭 시도
+                const matchingKey = Object.keys(TAG_TO_CATEGORY_MAP).find(
+                  (key) =>
+                    normalizedTagName.includes(key) ||
+                    key.includes(normalizedTagName),
+                );
+
+                if (matchingKey) {
+                  category = TAG_TO_CATEGORY_MAP[matchingKey];
+                  console.log(
+                    `🔍 부분 매칭 성공: "${normalizedTagName}" -> "${matchingKey}" -> "${category}"`,
+                  );
+                } else {
+                  // 매핑이 없으면 태그 이름 자체를 소문자로 변환하여 카테고리로 사용
+                  category = normalizedTagName;
+                  console.log(
+                    `🔍 매핑 없음, 태그 이름을 카테고리로 사용: "${normalizedTagName}"`,
+                  );
+                }
+              }
+
+              console.log(`🔍 태그 매핑 결과: ${tagName} -> ${category}`);
               return category;
             })
             .filter((category): category is string => category !== null);
+
+          // 변환된 카테고리 목록 로깅
+          console.log(
+            `🔍 변환된 카테고리 목록: ${categories.join(', ') || '없음'}`,
+          );
+
+          // 카테고리가 없으면 기본값 설정
+          if (categories.length === 0) {
+            categories.push('etc');
+            console.log('⚠️ 카테고리가 없어 기본값 "etc"를 추가합니다.');
+          }
+
+          // PostgreSQL 배열 타입(_text)과의 호환성을 위해 빈 문자열이나 null 값 제거
+          const cleanedCategories = categories
+            .filter((category) => category && category.trim() !== '')
+            .map((category) => category.trim());
+
+          console.log(
+            `🔍 정제된 카테고리 목록: ${cleanedCategories.join(', ')}`,
+          );
+
+          // 카테고리 데이터 타입 확인
+          console.log('🔍 카테고리 데이터 타입 정보:', {
+            categoriesType: typeof categories,
+            categoriesIsArray: Array.isArray(categories),
+            categoriesLength: categories.length,
+            cleanedCategoriesType: typeof cleanedCategories,
+            cleanedCategoriesIsArray: Array.isArray(cleanedCategories),
+            cleanedCategoriesLength: cleanedCategories.length,
+          });
 
           // Supabase에 아티클 저장
           await saveArticle({
@@ -121,7 +243,7 @@ export function setupForumHandler(client: Client) {
             submitted_by: starterMessage.author.id,
             submitted_at: new Date().toISOString(),
             channel_id: thread.id,
-            categories,
+            categories: cleanedCategories,
           });
 
           // 성공 메시지 전송
